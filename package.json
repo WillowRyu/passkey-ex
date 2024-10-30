@@ -1,0 +1,9 @@
+{
+  "name": "passkey-ex",
+  "scripts": {
+    "db:up": "docker-compose up -d",
+    "db:down": "docker-compose down",
+    "start:server": "cd server && cargo watch -x run",
+    "dev": "cd client && pnpm run dev"
+  }
+}
