@@ -28,6 +28,7 @@ pub async fn store_username_in_session(
     match session.insert("username", username).await {
         Ok(_) => {
             dbg!("username stored in session");
+            dbg!(&session);
             Ok(())
         }
         Err(_) => Err(AppError::new(

@@ -1,5 +1,4 @@
 mod always_errors;
-mod auth;
 mod custom_json_extractor;
 mod db_route;
 mod get_json;
@@ -15,7 +14,7 @@ mod returns_201;
 mod users;
 mod validate_with_serde;
 
-use axum::{http::Method, middleware, routing::post, Extension, Router};
+use axum::{middleware, routing::post, Extension, Router};
 
 // test route
 // use always_errors::always_errors;
@@ -34,13 +33,11 @@ use axum::{http::Method, middleware, routing::post, Extension, Router};
 use middle_ware::{middle_ware_csrf::middle_ware_csrf, middle_ware_session::middle_ware_session};
 use sea_orm::DatabaseConnection;
 use tower::ServiceBuilder;
-use tower_http::cors::{Any, CorsLayer};
-use tower_sessions::cookie::time::Duration;
-use tower_sessions::Expiry;
-use tower_sessions::{cookie::Key, MemoryStore, SessionManagerLayer};
 
-use auth::password::{self, password};
-use auth::username::username;
+use crate::{
+    controller::{handle_password::handle_password, handle_username::handle_username},
+    core::{cors_init::cors_init, session_init::session_init},
+};
 
 // db_route
 // use db_route::{
@@ -66,29 +63,16 @@ use auth::username::username;
 //     message: String,
 // }
 
-// todo: password 기능 추가 필요
+// todo: password 이후 기능 필요
 
 pub async fn create_routes(database: DatabaseConnection) -> Router {
-    let cors = CorsLayer::new()
-        .allow_headers(Any)
-        .allow_origin(Any)
-        .allow_methods([Method::GET, Method::POST]);
-
-    let session_store = MemoryStore::default();
-    let session_expiry = Expiry::OnInactivity(Duration::hours(1));
-    let key = Key::generate();
-
-    let session_layer = SessionManagerLayer::new(session_store)
-        .with_always_save(true)
-        .with_secure(false)
-        .with_same_site(tower_sessions::cookie::SameSite::None)
-        .with_http_only(true)
-        .with_expiry(session_expiry)
-        .with_signed(key);
+    let session_layer = session_init()
+        .await
+        .expect("failed to create session layer");
 
     let auth_routes = Router::new()
-        .route("/username", post(username))
-        .route("/password", post(password))
+        .route("/username", post(handle_username))
+        .route("/password", post(handle_password))
         .route(
             "/registerRequest",
             post(|| async {}).route_layer(middleware::from_fn(middle_ware_session)),
@@ -99,7 +83,7 @@ pub async fn create_routes(database: DatabaseConnection) -> Router {
 
     Router::new().nest("/api", api_route).layer(
         ServiceBuilder::new()
-            .layer(cors)
+            .layer(cors_init())
             .layer(Extension(database))
             .layer(session_layer),
     )
