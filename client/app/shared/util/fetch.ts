@@ -20,7 +20,7 @@ export const _fetch = async (path: string, payload: Payload) => {
 
   const response = await fetch(path, {
     method: "POST",
-    credentials: "same-origin",
+    credentials: "include",
     headers: headers,
     body: payload,
   });

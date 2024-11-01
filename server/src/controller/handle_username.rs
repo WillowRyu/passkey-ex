@@ -1,6 +1,6 @@
 use crate::{
+    controller::helpers::generate_base64_id,
     database::{helpers_users::find_user_by_username, users},
-    routes::auth::helpers::generate_base64_id,
     utils::app_error::AppError,
 };
 use axum::{
@@ -26,8 +26,7 @@ pub struct ResponseUser {
     data: users::Model,
 }
 
-/** username 등록 시작해야함 */
-pub async fn username(
+pub async fn handle_username(
     Extension(db): Extension<DatabaseConnection>,
     session: Session,
     Json(payload): Json<CreateUser>,
@@ -41,10 +40,7 @@ pub async fn username(
     }
 
     let user = match find_user_by_username(&db, &payload.username).await {
-        Ok(user) => {
-            dbg!(&user);
-            user
-        }
+        Ok(user) => user,
         Err(_) => {
             dbg!("not found");
             let id = generate_base64_id();
@@ -67,8 +63,6 @@ pub async fn username(
     };
 
     store_username_in_session(&session, payload.username.to_owned()).await?;
-
-    println!("session {:?}", &session);
 
     Ok(Json(ResponseUser { data: user }))
 }
