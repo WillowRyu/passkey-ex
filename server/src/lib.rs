@@ -1,6 +1,7 @@
 mod controller;
 mod core;
 mod database;
+mod model;
 mod routes;
 mod utils;
 

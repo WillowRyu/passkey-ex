@@ -1,9 +1,12 @@
 import { Button, Field, Input, Text } from "@fluentui/react-components";
+import { useNavigate } from "@remix-run/react";
 import { useEffect } from "react";
 import { auth_api } from "~/shared/api";
 import { _fetch, FormDataObj } from "~/shared/util/fetch";
 
 export default function Reauth() {
+  const navigate = useNavigate();
+
   useEffect(() => {
     const form = document.querySelector("form");
     form?.addEventListener("submit", async (e) => {
@@ -18,8 +21,13 @@ export default function Reauth() {
         _fetch((e.target as HTMLFormElement).action, cred)
           .then((res) => {
             console.log(res);
+            if (res?.data?.id) {
+              return navigate("/home");
+            }
+
+            alert(res?.message);
           })
-          .catch(console.log);
+          .catch((err) => alert(err.message));
       }
     });
   }, []);
