@@ -12,7 +12,6 @@ export default function Index() {
     form?.addEventListener("submit", async (e) => {
       e.preventDefault();
       e.stopImmediatePropagation();
-      console.log(form);
 
       if (e.target) {
         const formData = new FormData(e.target as HTMLFormElement);
@@ -20,9 +19,12 @@ export default function Index() {
 
         formData.forEach((v, k) => (cred[k] = v));
         _fetch((e.target as HTMLFormElement).action, cred)
-          .then((user) => {
-            console.log(user);
-            navigate("/reauth");
+          .then((res) => {
+            if (res?.data?.id) {
+              return navigate("/reauth");
+            }
+
+            alert(res?.message);
           })
           .catch(console.log);
       }

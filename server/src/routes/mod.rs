@@ -35,7 +35,10 @@ use sea_orm::DatabaseConnection;
 use tower::ServiceBuilder;
 
 use crate::{
-    controller::{handle_password::handle_password, handle_username::handle_username},
+    controller::{
+        handle_password::handle_password, handle_update_username::handle_update_username,
+        handle_userinfo::handle_userinfo, handle_username::handle_username,
+    },
     core::{cors_init::cors_init, session_init::session_init},
 };
 
@@ -63,20 +66,23 @@ use crate::{
 //     message: String,
 // }
 
-// todo: password 이후 기능 필요
+// @Todo: home 화면 나머지 기능들 추가 register
 
 pub async fn create_routes(database: DatabaseConnection) -> Router {
     let session_layer = session_init()
         .await
         .expect("failed to create session layer");
 
+    let auth_route_with_session = Router::new()
+        .route("/userinfo", post(handle_userinfo))
+        .route("/updateDisplayName", post(handle_update_username))
+        .route("/registerRequest", post(|| async {}))
+        .route_layer(middleware::from_fn(middle_ware_session));
+
     let auth_routes = Router::new()
         .route("/username", post(handle_username))
         .route("/password", post(handle_password))
-        .route(
-            "/registerRequest",
-            post(|| async {}).route_layer(middleware::from_fn(middle_ware_session)),
-        )
+        .merge(auth_route_with_session)
         .route_layer(middleware::from_fn(middle_ware_csrf));
 
     let api_route = Router::new().nest("/auth", auth_routes);
