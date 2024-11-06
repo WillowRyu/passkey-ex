@@ -36,8 +36,10 @@ use tower::ServiceBuilder;
 
 use crate::{
     controller::{
-        handle_password::handle_password, handle_update_username::handle_update_username,
-        handle_userinfo::handle_userinfo, handle_username::handle_username,
+        handle_get_key::handle_get_key, handle_password::handle_password,
+        handle_register_request::handle_register_request,
+        handle_update_username::handle_update_username, handle_userinfo::handle_userinfo,
+        handle_username::handle_username,
     },
     core::{cors_init::cors_init, session_init::session_init},
 };
@@ -66,26 +68,30 @@ use crate::{
 //     message: String,
 // }
 
-// @Todo: home 화면 나머지 기능들 추가 register
+// @Todo: register request node 와 연결하여 json 모델을 만들어야 함
 
 pub async fn create_routes(database: DatabaseConnection) -> Router {
     let session_layer = session_init()
         .await
         .expect("failed to create session layer");
 
-    let auth_route_with_session = Router::new()
+    let auth_route = Router::new()
         .route("/userinfo", post(handle_userinfo))
         .route("/updateDisplayName", post(handle_update_username))
-        .route("/registerRequest", post(|| async {}))
+        .route("/getKeys", post(handle_get_key))
+        .route("/registerRequest", post(handle_register_request))
         .route_layer(middleware::from_fn(middle_ware_session));
 
-    let auth_routes = Router::new()
+    let public_route = Router::new()
         .route("/username", post(handle_username))
-        .route("/password", post(handle_password))
-        .merge(auth_route_with_session)
-        .route_layer(middleware::from_fn(middle_ware_csrf));
+        .route("/password", post(handle_password));
 
-    let api_route = Router::new().nest("/auth", auth_routes);
+    let _auth_routes = Router::new().merge(public_route).merge(auth_route);
+    let auth_routes = Router::new().nest("/auth", _auth_routes);
+
+    let api_route = Router::new()
+        .merge(auth_routes)
+        .route_layer(middleware::from_fn(middle_ware_csrf));
 
     Router::new().nest("/api", api_route).layer(
         ServiceBuilder::new()
