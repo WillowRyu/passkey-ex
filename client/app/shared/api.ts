@@ -5,4 +5,6 @@ export const auth_api = {
   password: `${_API_URL}/auth/password`,
   userinfo: `${_API_URL}/auth/userinfo`,
   update_dispaly_name: `${_API_URL}/auth/updateDisplayName`,
+  getkeys: `${_API_URL}/auth/getKeys`,
+  registerRequest: `${_API_URL}/auth/registerRequest`,
 };

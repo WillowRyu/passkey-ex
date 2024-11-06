@@ -1,7 +1,6 @@
 use crate::{
-    controller::helpers::generate_base64_id,
     database::{helpers_users::find_user_by_username, users},
-    utils::app_error::AppError,
+    utils::{app_error::AppError, base64_util::generate_base64_id},
 };
 use axum::{
     http::StatusCode,

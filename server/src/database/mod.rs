@@ -3,5 +3,6 @@
 pub mod prelude;
 
 pub mod credentials;
+pub mod helpers_credentials;
 pub mod helpers_users;
 pub mod users;

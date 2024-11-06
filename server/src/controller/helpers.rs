@@ -8,13 +8,6 @@ use tower_sessions::Session;
 
 use crate::utils::app_error::AppError;
 
-pub fn generate_base64_id() -> String {
-    let mut rng = rand::thread_rng();
-    let mut bytes = [0u8; 32];
-    rng.fill_bytes(&mut bytes);
-    base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(bytes)
-}
-
 pub async fn store_username_in_session(
     session: &Session,
     username: String,
