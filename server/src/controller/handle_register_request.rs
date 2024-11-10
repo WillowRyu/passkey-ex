@@ -1,20 +1,17 @@
-use std::collections::HashMap;
-
-use axum::{
-    extract::Request,
-    http::StatusCode,
-    response::{IntoResponse, Response},
-    Extension, Json,
-};
-use sea_orm::*;
-use serde::Serialize;
+use axum::{extract::Request, Extension, Json};
+use serde::{Deserialize, Serialize};
+use serde_json::{json, Value};
+use tower_sessions::Session;
 
 use crate::{
-    database::{credentials, helpers_credentials::get_keys_by_user_id, users},
-    utils::{base64_util::base64_url_decode, helpers_app_error::user_not_found_error},
+    database::{helpers_credentials::get_keys_by_user_id, users},
+    utils::{
+        app_error::AppError, base64_util::base64_url_decode,
+        helpers_app_error::user_not_found_error,
+    },
 };
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize, Debug)]
 struct ExcludeCredentials {
     id: String,
     r#type: String,
@@ -22,15 +19,15 @@ struct ExcludeCredentials {
 }
 
 #[derive(Serialize)]
-struct AuthenticatorSelection {
-    authenticatorAttachment: String,
-    requireResidentKey: bool,
+pub struct RespnseValue {
+    data: Value,
 }
 
 pub async fn handle_register_request(
-    Extension(db): Extension<DatabaseConnection>,
+    Extension(db): Extension<sea_orm::DatabaseConnection>,
+    session: Session,
     request: Request,
-) -> Result<StatusCode, Response> {
+) -> Result<Json<RespnseValue>, AppError> {
     if let Some(user) = request.extensions().get::<users::Model>() {
         let mut exclude_credentials: Vec<ExcludeCredentials> = vec![];
         if let Ok(credentials) = get_keys_by_user_id(&db, &user.id).await {
@@ -44,30 +41,34 @@ pub async fn handle_register_request(
             });
         }
 
-        let authenticator_selection = AuthenticatorSelection {
-            authenticatorAttachment: "platform".to_string(),
-            requireResidentKey: true,
-        };
+        let request_props = &json!({
+            "rpName": "SimpleWebAuthn Example",
+            "rpID": "localhost",
+            "userID": &user.id,
+            "userName": &user.username,
+            "userDisplayName": &user.displayname,
+            "attestationType": "none",
+            "excludeCredentials": exclude_credentials,
+            "authenticatorSelection": {
+                "authenticatorAttachment": "platform",
+                "requireResidentKey": true
+            },
+        });
 
-        let attestationType = "none";
+        let resp = reqwest::Client::new()
+            .post("http://localhost:3001/generate-options")
+            .json(&request_props)
+            .send()
+            .await?;
 
-        let challange = reqwest::get("http://localhost:3001/generate-options").await;
+        let json_resp = resp.json::<Value>().await?;
 
-        match reqwest::get("http://localhost:3001/generate-options").await {
-            Ok(resp) => {
-                let json: Result<serde_json::Value, reqwest::Error> = resp.json().await;
-                if json.is_ok() {
-                    println!("{:#?}", json);
-                    return Ok(StatusCode::OK);
-                } else {
-                    return Err(Response::new("error".to_string()).into_response());
-                }
-            }
-            Err(_) => {
-                return Err(Response::new("error".to_string()).into_response());
-            }
-        }
+        session
+            .insert("challenge", &json_resp.get("challenge"))
+            .await?;
+
+        Ok(Json(RespnseValue { data: json_resp }))
+    } else {
+        Err(user_not_found_error())
     }
-
-    Ok(StatusCode::OK)
 }

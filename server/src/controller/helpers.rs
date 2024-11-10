@@ -2,8 +2,6 @@ use axum::{
     http::StatusCode,
     response::{IntoResponse, Response},
 };
-use base64::Engine;
-use rand::RngCore;
 use tower_sessions::Session;
 
 use crate::utils::app_error::AppError;

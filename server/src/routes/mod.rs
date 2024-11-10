@@ -68,7 +68,7 @@ use crate::{
 //     message: String,
 // }
 
-// @Todo: register request node 와 연결하여 json 모델을 만들어야 함
+// @Todo: client/ registerCredential() 진행해야함
 
 pub async fn create_routes(database: DatabaseConnection) -> Router {
     let session_layer = session_init()
