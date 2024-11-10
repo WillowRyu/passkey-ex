@@ -4,8 +4,8 @@ use axum::Json;
 use serde::Serialize;
 
 pub struct AppError {
-    message: String,
-    code: StatusCode,
+    pub message: String,
+    pub code: StatusCode,
 }
 
 impl AppError {
