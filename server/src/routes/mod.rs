@@ -36,9 +36,12 @@ use tower::ServiceBuilder;
 
 use crate::{
     controller::{
-        handle_get_key::handle_get_key, handle_password::handle_password,
+        handle_get_key::handle_get_key,
+        handle_password::handle_password,
         handle_register_request::handle_register_request,
-        handle_update_username::handle_update_username, handle_userinfo::handle_userinfo,
+        handle_register_response::{self, handle_register_response},
+        handle_update_username::handle_update_username,
+        handle_userinfo::handle_userinfo,
         handle_username::handle_username,
     },
     core::{cors_init::cors_init, session_init::session_init},
@@ -68,7 +71,7 @@ use crate::{
 //     message: String,
 // }
 
-// @Todo: client/ registerCredential() 진행해야함
+// @Todo: client/ registerCredential() credential 저장후 나머지 마무리
 
 pub async fn create_routes(database: DatabaseConnection) -> Router {
     let session_layer = session_init()
@@ -80,6 +83,7 @@ pub async fn create_routes(database: DatabaseConnection) -> Router {
         .route("/updateDisplayName", post(handle_update_username))
         .route("/getKeys", post(handle_get_key))
         .route("/registerRequest", post(handle_register_request))
+        .route("/registerResponse", post(handle_register_response))
         .route_layer(middleware::from_fn(middle_ware_session));
 
     let public_route = Router::new()

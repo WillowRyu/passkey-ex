@@ -41,10 +41,12 @@ pub async fn handle_register_request(
             });
         }
 
+        let user_id = user.id.as_bytes().to_vec();
+
         let request_props = &json!({
             "rpName": "SimpleWebAuthn Example",
             "rpID": "localhost",
-            "userID": &user.id,
+            "userID": &user_id,
             "userName": &user.username,
             "userDisplayName": &user.displayname,
             "attestationType": "none",
