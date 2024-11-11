@@ -1,5 +1,6 @@
 import { Button } from "@fluentui/react-components";
 import { useEffect, useState } from "react";
+import { useCreateCredential } from "~/hooks/use-create-credential";
 import { CredentialsResponse } from "~/models/credentials_model";
 import { auth_api } from "~/shared/api";
 import { _fetch } from "~/shared/util/fetch";
@@ -7,6 +8,8 @@ import { _fetch } from "~/shared/util/fetch";
 export default function Home() {
   const [displayName, setDisplayName] = useState();
   const [cred, setCred] = useState<Array<CredentialsResponse>>([]);
+
+  const { createCred } = useCreateCredential();
 
   useEffect(() => {
     _fetch(auth_api.userinfo, "").then((res) => {
@@ -28,9 +31,7 @@ export default function Home() {
   };
 
   const registerCredential = () => {
-    _fetch(auth_api.registerRequest, "").then((res) => {
-      console.log(res, "register request");
-    });
+    createCred();
   };
 
   useEffect(() => {

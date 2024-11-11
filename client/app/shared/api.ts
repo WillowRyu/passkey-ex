@@ -7,4 +7,5 @@ export const auth_api = {
   update_dispaly_name: `${_API_URL}/auth/updateDisplayName`,
   getkeys: `${_API_URL}/auth/getKeys`,
   registerRequest: `${_API_URL}/auth/registerRequest`,
+  registerResponse: `${_API_URL}/auth/registerResponse`,
 };

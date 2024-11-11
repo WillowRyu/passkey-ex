@@ -1,5 +1,8 @@
 const express = require("express");
-const { generateRegistrationOptions } = require("@simplewebauthn/server");
+const {
+  generateRegistrationOptions,
+  verifyRegistrationResponse,
+} = require("@simplewebauthn/server");
 const { isoUint8Array } = require("@simplewebauthn/server/helpers");
 const crypto = require("crypto");
 
@@ -13,32 +16,84 @@ const port = 3001;
 app.use(express.json());
 
 app.post("/generate-options", async (req, res) => {
-  console.log(req.body, "req");
-
   if (req.body.rpID) {
-    console.log("inin");
-    const options = await generateRegistrationOptions({
-      rpName: "SimpleWebAuthn Example",
-      rpID: "localhost",
-      userID: isoUint8Array.fromUTF8String(
-        "Q9iY3jsujMgiviuTrI2If7QEhteNihPKMCC-cN7jQUM"
-      ),
-      userName: "12345",
-      userDisplayName: "12345",
-      attestationType: "none",
-      excludeCredentials: [],
-      authenticatorSelection: {
-        authenticatorAttachment: "platform",
-        requireResidentKey: true,
-      },
-      supportedAlgorithmIDs: [-7, -257],
-    });
+    try {
+      const {
+        rpName,
+        rpID,
+        userID,
+        userName,
+        userDisplayName,
+        attestationType,
+        excludeCredentials,
+        authenticatorSelection,
+      } = req.body;
 
-    console.log(options, "options");
-    return res.json(options);
+      console.log(req.body, "req.body");
+
+      const options = await generateRegistrationOptions({
+        rpName,
+        rpID,
+        userID,
+        userName,
+        userDisplayName: userDisplayName || userName,
+        attestationType,
+        excludeCredentials,
+        authenticatorSelection,
+      });
+
+      console.log(options, "options");
+      return res.json(options);
+    } catch (error) {
+      console.error(error);
+      return res.status(400).json({ error: error.message });
+    }
   }
 
   return res.status(400).json({ error: "Invalid request" });
+});
+
+app.post("/verify-credentials", async (req, res) => {
+  try {
+    const {
+      expectedOrigin,
+      expectedChallenge,
+      expectedRPID,
+      response,
+      requireUserVerification,
+    } = req.body;
+
+    const { verified, registrationInfo } = await verifyRegistrationResponse({
+      expectedChallenge,
+      expectedOrigin,
+      expectedRPID,
+      response,
+      requireUserVerification,
+    });
+
+    if (!verified) {
+      throw new Error("User verification failed.");
+    }
+
+    console.log({
+      verified,
+      registrationInfo: {
+        credentialId: registrationInfo.credential.id,
+        credentialPublicKey: registrationInfo.credential.publicKey,
+      },
+    });
+
+    return res.json({
+      verified,
+      registrationInfo: {
+        credentialId: registrationInfo.credential.id,
+        credentialPublicKey: registrationInfo.credential.publicKey,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(400).json({ error: error.message });
+  }
 });
 
 app.listen(port, "127.0.0.1", () => {

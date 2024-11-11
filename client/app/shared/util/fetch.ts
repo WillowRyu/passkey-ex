@@ -8,7 +8,7 @@ export type FormDataObj = {
 
 export type Payload = FormData | string | FormDataObj;
 
-export const _fetch = async (path: string, payload: Payload) => {
+export const _fetch = async (path: string, payload: Payload = "") => {
   const headers: Headers = {
     "X-Requested-With": "XMLHttpRequest",
   };

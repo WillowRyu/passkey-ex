@@ -1,5 +1,5 @@
 use crate::utils::app_error::AppError;
-use axum::{body::Body, http::StatusCode, response::Response};
+use axum::{body::Body, extract::rejection::JsonRejection, http::StatusCode, response::Response};
 use serde_json::json;
 
 impl From<serde_json::Error> for AppError {
@@ -7,6 +7,15 @@ impl From<serde_json::Error> for AppError {
         AppError::new(
             "JSON serialization error".to_string(),
             StatusCode::INTERNAL_SERVER_ERROR,
+        )
+    }
+}
+
+impl From<JsonRejection> for AppError {
+    fn from(value: JsonRejection) -> Self {
+        AppError::new(
+            format!("JSON rejection error: {:?}", value),
+            StatusCode::BAD_REQUEST,
         )
     }
 }
