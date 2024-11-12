@@ -11,16 +11,30 @@ export default function Home() {
 
   const { createCred } = useCreateCredential();
 
-  useEffect(() => {
-    _fetch(auth_api.userinfo, "").then((res) => {
-      console.log(res, "in home");
+  const fetchKeys = () => {
+    _fetch(auth_api.getkeys).then((res) => {
+      if (res.data) {
+        return setCred(res.data);
+      }
+      alert(res?.message);
+    });
+  };
+
+  const fetchUserInfo = () => {
+    _fetch(auth_api.userinfo).then((res) => {
       setDisplayName(res?.data?.displayname);
     });
-  }, []);
+  };
 
   const updateDisplayName = () => {
+    const newDisplayName = prompt("Enter new display name", displayName);
+
+    if (!newDisplayName) {
+      return;
+    }
+
     _fetch(auth_api.update_dispaly_name, {
-      display_name: "new name",
+      display_name: newDisplayName,
     }).then((res) => {
       if (res?.data?.displayname) {
         return setDisplayName(res.data.displayname);
@@ -30,17 +44,42 @@ export default function Home() {
     });
   };
 
-  const registerCredential = () => {
-    createCred();
+  const registerCredential = async () => {
+    createCred().then((res) => {
+      if (res.data.id) {
+        fetchKeys();
+      }
+    });
+  };
+
+  const onDelete = (credId: string) => {
+    _fetch(`${auth_api.removeKey}?credId=${credId}`).then((res) => {
+      if (res.status === "OK") {
+        fetchKeys();
+      }
+    });
+  };
+
+  const updateRegisterKeyName = (credId: string, exName: string) => {
+    const newName = prompt("Enter new cred name", exName);
+
+    if (!newName) {
+      return;
+    }
+
+    _fetch(auth_api.renameKey, {
+      credId,
+      newName,
+    }).then((res) => {
+      if (res.data) {
+        fetchKeys();
+      }
+    });
   };
 
   useEffect(() => {
-    _fetch(auth_api.getkeys, "").then((res) => {
-      if (res.data) {
-        return setCred(res.data);
-      }
-      alert(res?.message);
-    });
+    fetchKeys();
+    fetchUserInfo();
   }, []);
 
   return (
@@ -54,7 +93,15 @@ export default function Home() {
       </Button>
       <div>
         {cred?.map((cred) => {
-          return <span key={cred.id}>{cred.name}</span>;
+          return (
+            <div key={cred.id}>
+              <span key={cred.id}>{cred.name}</span>
+              <Button onClick={() => onDelete(cred.id)}>Delete</Button>
+              <Button onClick={() => updateRegisterKeyName(cred.id, cred.name)}>
+                Rename
+              </Button>
+            </div>
+          );
         })}
 
         {cred.length === 0 && <span>no keys</span>}

@@ -4,7 +4,7 @@ use axum::{
 };
 use tower_sessions::Session;
 
-use crate::utils::app_error::AppError;
+use crate::{model::const_value, utils::app_error::AppError};
 
 pub async fn store_username_in_session(
     session: &Session,
@@ -16,7 +16,7 @@ pub async fn store_username_in_session(
         );
     }
 
-    match session.insert("username", username).await {
+    match session.insert(const_value::USERNAME_KEY, username).await {
         Ok(_) => {
             dbg!("username stored in session");
             dbg!(&session);

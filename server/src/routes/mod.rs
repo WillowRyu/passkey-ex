@@ -1,16 +1,10 @@
-mod always_errors;
 mod custom_json_extractor;
 mod db_route;
-mod get_json;
-mod hello_world;
 mod middle_ware;
-mod mirror_body_json;
-mod mirror_body_string;
 mod mirror_custom_header;
 mod mirror_user_agent;
 mod path_variables;
 mod query_params;
-mod returns_201;
 mod users;
 mod validate_with_serde;
 
@@ -36,12 +30,11 @@ use tower::ServiceBuilder;
 
 use crate::{
     controller::{
-        handle_get_key::handle_get_key,
-        handle_password::handle_password,
+        handle_get_key::handle_get_key, handle_password::handle_password,
         handle_register_request::handle_register_request,
-        handle_register_response::{self, handle_register_response},
-        handle_update_username::handle_update_username,
-        handle_userinfo::handle_userinfo,
+        handle_register_response::handle_register_response, handle_remove_key::handle_remove_key,
+        handle_update_cred_name::handle_update_cred_name,
+        handle_update_username::handle_update_username, handle_userinfo::handle_userinfo,
         handle_username::handle_username,
     },
     core::{cors_init::cors_init, session_init::session_init},
@@ -71,7 +64,7 @@ use crate::{
 //     message: String,
 // }
 
-// @Todo: client/ registerCredential() credential 저장후 나머지 마무리
+// @Todo: 자동 로그인 관련 부분 시작해야함
 
 pub async fn create_routes(database: DatabaseConnection) -> Router {
     let session_layer = session_init()
@@ -82,6 +75,8 @@ pub async fn create_routes(database: DatabaseConnection) -> Router {
         .route("/userinfo", post(handle_userinfo))
         .route("/updateDisplayName", post(handle_update_username))
         .route("/getKeys", post(handle_get_key))
+        .route("/removeKey", post(handle_remove_key))
+        .route("/renameKey", post(handle_update_cred_name))
         .route("/registerRequest", post(handle_register_request))
         .route("/registerResponse", post(handle_register_response))
         .route_layer(middleware::from_fn(middle_ware_session));
