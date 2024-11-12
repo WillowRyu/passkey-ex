@@ -2,19 +2,18 @@ use std::error::Error;
 
 use base64::Engine;
 use rand::Rng;
-use serde_json::Value;
 
-pub fn base64_url_encode(data: &[u8]) -> String {
+pub fn base64_url_encode<T>(data: T) -> String
+where
+    T: AsRef<[u8]>,
+{
     base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(data)
 }
 
-pub fn base64_url_encode_json(value: &Value) -> Option<String> {
-    value
-        .as_str()
-        .map(|s| base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(s.as_bytes()))
-}
-
-pub fn base64_url_decode(encoded: &str) -> Result<Vec<u8>, Box<dyn Error>> {
+pub fn base64_url_decode<T>(encoded: T) -> Result<Vec<u8>, Box<dyn Error>>
+where
+    T: AsRef<[u8]>,
+{
     let decoded = base64::engine::general_purpose::URL_SAFE_NO_PAD.decode(encoded)?;
     Ok(decoded)
 }

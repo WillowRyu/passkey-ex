@@ -1,5 +1,6 @@
 use crate::utils::app_error::AppError;
 use axum::{body::Body, extract::rejection::JsonRejection, http::StatusCode, response::Response};
+use sea_orm::DbErr;
 use serde_json::json;
 
 impl From<serde_json::Error> for AppError {
@@ -39,5 +40,11 @@ impl From<AppError> for Response<Body> {
     fn from(error: AppError) -> Self {
         let body = Body::from(json!({ "error": error.message }).to_string());
         Response::builder().status(error.code).body(body).unwrap()
+    }
+}
+
+impl From<DbErr> for AppError {
+    fn from(error: DbErr) -> Self {
+        AppError::new(error.to_string(), StatusCode::INTERNAL_SERVER_ERROR)
     }
 }

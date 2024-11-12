@@ -5,6 +5,7 @@ use tower_sessions::Session;
 
 use crate::{
     database::{helpers_credentials::get_keys_by_user_id, users},
+    model::const_value,
     utils::{
         app_error::AppError, base64_util::base64_url_decode,
         helpers_app_error::user_not_found_error,
@@ -66,7 +67,7 @@ pub async fn handle_register_request(
         let json_resp = resp.json::<Value>().await?;
 
         session
-            .insert("challenge", &json_resp.get("challenge"))
+            .insert(const_value::CHALLENGE_KEY, &json_resp.get("challenge"))
             .await?;
 
         Ok(Json(RespnseValue { data: json_resp }))
