@@ -15,3 +15,10 @@ pub fn key_not_found_error() -> AppError {
         StatusCode::INTERNAL_SERVER_ERROR,
     )
 }
+
+pub fn credential_not_found_error() -> AppError {
+    AppError::new(
+        "credential not found".to_owned(),
+        StatusCode::INTERNAL_SERVER_ERROR,
+    )
+}

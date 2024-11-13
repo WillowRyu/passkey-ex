@@ -8,21 +8,11 @@ mod query_params;
 mod users;
 mod validate_with_serde;
 
-use axum::{middleware, routing::post, Extension, Router};
-
-// test route
-// use always_errors::always_errors;
-// use custom_json_extractor::custom_json_extractor;
-// use get_json::get_json;
-// use hello_world::hello_world;
-// use mirror_body_json::mirror_body_json;
-// use mirror_body_string::mirror_body_string;
-// use mirror_custom_header::mirror_custom_header;
-// use mirror_user_agent::mirror_user_agent;
-// use path_variables::{hard_codeded_path, path_variables};
-// use query_params::query_params;
-// use returns_201::returns_201;
-// use validate_with_serde::validate_with_serde;
+use axum::{
+    middleware,
+    routing::{get, post},
+    Extension, Router,
+};
 
 use middle_ware::{middle_ware_csrf::middle_ware_csrf, middle_ware_session::middle_ware_session};
 use sea_orm::DatabaseConnection;
@@ -30,9 +20,11 @@ use tower::ServiceBuilder;
 
 use crate::{
     controller::{
-        handle_get_key::handle_get_key, handle_password::handle_password,
-        handle_register_request::handle_register_request,
+        handle_get_key::handle_get_key, handle_logout::handle_logout,
+        handle_password::handle_password, handle_register_request::handle_register_request,
         handle_register_response::handle_register_response, handle_remove_key::handle_remove_key,
+        handle_signin_request::handle_signin_request,
+        handle_signin_response::handle_signin_response,
         handle_update_cred_name::handle_update_cred_name,
         handle_update_username::handle_update_username, handle_userinfo::handle_userinfo,
         handle_username::handle_username,
@@ -64,7 +56,7 @@ use crate::{
 //     message: String,
 // }
 
-// @Todo: 자동 로그인 관련 부분 시작해야함
+// @Todo: 로그인 관련 navigate 시작해야함
 
 pub async fn create_routes(database: DatabaseConnection) -> Router {
     let session_layer = session_init()
@@ -81,16 +73,21 @@ pub async fn create_routes(database: DatabaseConnection) -> Router {
         .route("/registerResponse", post(handle_register_response))
         .route_layer(middleware::from_fn(middle_ware_session));
 
+    let csrf_check_route = Router::new()
+        .merge(auth_route)
+        .route("/signinRequest", post(handle_signin_request))
+        .route("/signinResponse", post(handle_signin_response))
+        .route_layer(middleware::from_fn(middle_ware_csrf));
+
     let public_route = Router::new()
         .route("/username", post(handle_username))
-        .route("/password", post(handle_password));
+        .route("/password", post(handle_password))
+        .route("/logout", get(handle_logout));
 
-    let _auth_routes = Router::new().merge(public_route).merge(auth_route);
+    let _auth_routes = Router::new().merge(public_route).merge(csrf_check_route);
     let auth_routes = Router::new().nest("/auth", _auth_routes);
 
-    let api_route = Router::new()
-        .merge(auth_routes)
-        .route_layer(middleware::from_fn(middle_ware_csrf));
+    let api_route = Router::new().merge(auth_routes);
 
     Router::new().nest("/api", api_route).layer(
         ServiceBuilder::new()
@@ -98,44 +95,4 @@ pub async fn create_routes(database: DatabaseConnection) -> Router {
             .layer(Extension(database))
             .layer(session_layer),
     )
-
-    // todo nest router 시작
-
-    // Router::new()
-    // .route(path, method_router)
-    // .route("/", get(hello_world))
-    // .route("/mirror_body_string", post(mirror_body_string))
-    // .route("/mirror_body_json", post(mirror_body_json))
-    // .route("/path_variables/:id", get(path_variables))
-    // .route("/path_variables/15", get(hard_codeded_path))
-    // .route("/query_params", get(query_params))
-    // .route("/mirror_user_agent", get(mirror_user_agent))
-    // .route("/mirror_custom_header", get(mirror_custom_header))
-    // .route("/middleware_message", get(middle_ware_message))
-    // .with_state(shared_data.message)
-    // .route(
-    //     "/read_middleware_custom_header",
-    //     get(read_middle_ware_custom_header)
-    //         .route_layer(middleware::from_fn(set_middle_ware_custom_header)),
-    // )
-    // .route("/always_error", get(always_errors))
-    // .route("/returns_201", post(returns_201))
-    // .route("/get_json", get(get_json))
-    // .route("/validate_data", post(validate_with_serde))
-    // .route("/custom_json_extractor", post(custom_json_extractor))
-    // .route("/tasks", get(get_all_tasks).post(create_task))
-    // .route(
-    //     "/tasks/:task_id",
-    //     get(get_one_task)
-    //         .put(atomic_update)
-    //         .patch(partial_update)
-    //         .delete(delete_task),
-    // )
-    // .route("/users", post(create_user))
-    // .route("/users/login", post(login))
-    // .route(
-    //     "/users/logout",
-    //     post(logout).route_layer(middleware::from_fn(middle_ware_route_guard)),
-    // )
-    // .layer(ServiceBuilder::new().layer(cors).layer(Extension(database)))
 }

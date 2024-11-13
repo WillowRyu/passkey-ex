@@ -95,7 +95,9 @@ pub async fn handle_register_response(
         ));
     }
 
-    let base64_credential_id = base64_url_encode(json_resp.registration_info.credential_id);
+    dbg!(&json_resp);
+
+    // let base64_credential_id = base64_url_encode(json_resp.registration_info.credential_id);
     let base64_credntial_public_key =
         base64_url_encode(&json_resp.registration_info.credential_public_key);
     let user_agent = user_agent_handler(&headers).await;
@@ -114,7 +116,7 @@ pub async fn handle_register_response(
         .collect();
 
     let new_credential = credentials::ActiveModel {
-        id: Set(base64_credential_id),
+        id: Set(json_resp.registration_info.credential_id),
         publickey: Set(base64_credntial_public_key),
         user_id: Set(Some(user.id.clone())),
         transports: Set(transports_vec),
@@ -128,7 +130,7 @@ pub async fn handle_register_response(
         )
     })?;
 
-    session.remove::<Value>(const_value::CHALLENGE_KEY).await?;
+    session.remove::<String>(const_value::CHALLENGE_KEY).await?;
     session.insert(const_value::SIGNED_IN_KEY, "yes").await?;
 
     Ok(Json(ResponseUser { data: user }))

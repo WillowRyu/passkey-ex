@@ -2,8 +2,9 @@ const express = require("express");
 const {
   generateRegistrationOptions,
   verifyRegistrationResponse,
+  generateAuthenticationOptions,
 } = require("@simplewebauthn/server");
-const { isoUint8Array } = require("@simplewebauthn/server/helpers");
+
 const crypto = require("crypto");
 
 if (!global.crypto) {
@@ -29,8 +30,6 @@ app.post("/generate-options", async (req, res) => {
         authenticatorSelection,
       } = req.body;
 
-      console.log(req.body, "req.body");
-
       const options = await generateRegistrationOptions({
         rpName,
         rpID,
@@ -42,10 +41,8 @@ app.post("/generate-options", async (req, res) => {
         authenticatorSelection,
       });
 
-      console.log(options, "options");
       return res.json(options);
     } catch (error) {
-      console.error(error);
       return res.status(400).json({ error: error.message });
     }
   }
@@ -75,14 +72,6 @@ app.post("/verify-credentials", async (req, res) => {
       throw new Error("User verification failed.");
     }
 
-    console.log({
-      verified,
-      registrationInfo: {
-        credentialId: registrationInfo.credential.id,
-        credentialPublicKey: registrationInfo.credential.publicKey,
-      },
-    });
-
     return res.json({
       verified,
       registrationInfo: {
@@ -92,6 +81,56 @@ app.post("/verify-credentials", async (req, res) => {
     });
   } catch (error) {
     console.error(error);
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+app.post("/generate-auth-options", async (req, res) => {
+  try {
+    const { rpID, allowCredentials } = req.body;
+    const options = await generateAuthenticationOptions({
+      rpID,
+      allowCredentials,
+    });
+
+    return res.json({
+      options,
+    });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+app.post("/verify-auth-credentials", async (req, res) => {
+  try {
+    const {
+      response,
+      expectedChallenge,
+      expectedOrigin,
+      expectedRPID,
+      authenticator,
+    } = req.body;
+
+    const { verified, authenticationInfo } = await verifyAuthenticationResponse(
+      {
+        response,
+        expectedChallenge,
+        expectedOrigin,
+        expectedRPID,
+        authenticator,
+        requireUserVerification: false,
+      }
+    );
+
+    if (!verified) {
+      throw new Error("User verification failed.");
+    }
+
+    return res.json({
+      verified,
+      authenticationInfo,
+    });
+  } catch (error) {
     return res.status(400).json({ error: error.message });
   }
 });

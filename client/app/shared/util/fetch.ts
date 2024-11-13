@@ -8,10 +8,16 @@ export type FormDataObj = {
 
 export type Payload = FormData | string | FormDataObj;
 
-export const _fetch = async (path: string, payload: Payload = "") => {
+interface fetchOptions {
+  payload?: Payload;
+}
+
+export const _fetch = async (path: string, options?: fetchOptions) => {
   const headers: Headers = {
     "X-Requested-With": "XMLHttpRequest",
   };
+
+  let payload = options?.payload ?? "";
 
   if (payload && !(payload instanceof FormData)) {
     headers["Content-Type"] = "application/json";
