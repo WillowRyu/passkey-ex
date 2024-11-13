@@ -7,8 +7,6 @@ export const useCreateCredential = () => {
     const response = await _fetch(auth_api.registerRequest);
     const { data: options } = response;
 
-    console.log(options, "options");
-
     options.user.id = base64url.decode(options.user.id);
     options.challenge = base64url.decode(options.challenge);
 
@@ -49,7 +47,9 @@ export const useCreateCredential = () => {
       transports,
     };
 
-    return await _fetch(auth_api.registerResponse, credential);
+    return await _fetch(auth_api.registerResponse, {
+      payload: credential,
+    });
   };
 
   return { createCred };

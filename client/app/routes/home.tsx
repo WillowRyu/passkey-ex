@@ -34,7 +34,9 @@ export default function Home() {
     }
 
     _fetch(auth_api.update_dispaly_name, {
-      display_name: newDisplayName,
+      payload: {
+        display_name: newDisplayName,
+      },
     }).then((res) => {
       if (res?.data?.displayname) {
         return setDisplayName(res.data.displayname);
@@ -44,7 +46,7 @@ export default function Home() {
     });
   };
 
-  const registerCredential = async () => {
+  const registerCredential = () => {
     createCred().then((res) => {
       if (res.data.id) {
         fetchKeys();
@@ -60,6 +62,16 @@ export default function Home() {
     });
   };
 
+  const onLogout = async () => {
+    const response = await fetch(auth_api.logout, {
+      method: "GET",
+    });
+
+    if (response.status === 200) {
+      console.log("logged out");
+    }
+  };
+
   const updateRegisterKeyName = (credId: string, exName: string) => {
     const newName = prompt("Enter new cred name", exName);
 
@@ -68,8 +80,10 @@ export default function Home() {
     }
 
     _fetch(auth_api.renameKey, {
-      credId,
-      newName,
+      payload: {
+        credId,
+        newName,
+      },
     }).then((res) => {
       if (res.data) {
         fetchKeys();
@@ -108,6 +122,9 @@ export default function Home() {
       </div>
       <Button type="button" onClick={registerCredential}>
         register credential
+      </Button>
+      <Button type="button" onClick={onLogout}>
+        Logout
       </Button>
     </div>
   );

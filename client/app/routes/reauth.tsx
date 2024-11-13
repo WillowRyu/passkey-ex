@@ -18,7 +18,9 @@ export default function Reauth() {
         const cred: FormDataObj = {};
 
         formData.forEach((v, k) => (cred[k] = v));
-        _fetch((e.target as HTMLFormElement).action, cred)
+        _fetch((e.target as HTMLFormElement).action, {
+          payload: cred,
+        })
           .then((res) => {
             console.log(res);
             if (res?.data?.id) {
