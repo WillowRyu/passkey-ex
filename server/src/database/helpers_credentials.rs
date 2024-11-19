@@ -14,10 +14,7 @@ pub async fn get_keys_by_user_id(
         .filter(credentials::Column::UserId.eq(user_id))
         .all(db)
         .await
-        .map_err(|_| {
-            dbg!("error when find key by user id");
-            key_not_found_error()
-        })?;
+        .map_err(|_| key_not_found_error())?;
 
     if keys.is_empty() {
         Ok(vec![])
@@ -30,15 +27,11 @@ pub async fn find_credentials_by_id(
     db: &DatabaseConnection,
     id: &str,
 ) -> Result<credentials::Model, AppError> {
-    dbg!(id);
     let user = credentials::Entity::find()
         .filter(credentials::Column::Id.eq(id))
         .one(db)
         .await
-        .map_err(|_| {
-            dbg!("error when find_credentials_by_id");
-            credential_not_found_error()
-        })?;
+        .map_err(|_| credential_not_found_error())?;
 
     user.ok_or_else(credential_not_found_error)
 }

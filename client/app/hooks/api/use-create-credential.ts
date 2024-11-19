@@ -21,13 +21,17 @@ export const useCreateCredential = () => {
       requireResidentKey: true,
     };
 
+    console.log("create");
+
     const cred = (await navigator.credentials.create({
       publicKey: options,
     })) as any;
 
+    console.log(cred, "cred");
+
     const credential: any = {};
     credential.id = cred?.id;
-    credential.rawId = cred?.id; // Pass a Base64URL encoded ID string.
+    credential.rawId = cred?.id;
     credential.type = cred?.type;
 
     if (cred?.authenticatorAttachment) {
@@ -52,5 +56,5 @@ export const useCreateCredential = () => {
     });
   };
 
-  return { createCred };
+  return [createCred] as const;
 };

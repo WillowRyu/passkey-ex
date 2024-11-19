@@ -66,8 +66,6 @@ pub async fn handle_register_request(
 
         let json_resp = resp.json::<Value>().await?;
 
-        dbg!(&json_resp);
-
         session
             .insert(
                 const_value::CHALLENGE_KEY,

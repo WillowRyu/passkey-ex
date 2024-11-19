@@ -41,15 +41,12 @@ pub async fn handle_username(
     let user = match find_user_by_username(&db, &payload.username).await {
         Ok(user) => user,
         Err(_) => {
-            dbg!("not found");
             let id = generate_base64_id();
             let new_user = users::ActiveModel {
                 username: Set(payload.username.to_owned()),
                 displayname: Set(payload.username.to_owned()),
                 id: Set(id),
             };
-
-            dbg!("new user {}", &new_user);
 
             new_user.insert(&db).await.map_err(|_| {
                 AppError::new(

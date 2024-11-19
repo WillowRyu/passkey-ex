@@ -1,3 +1,5 @@
+import { Navigate } from "@remix-run/react";
+
 type Headers = {
   [key: string]: string;
 };
@@ -8,11 +10,11 @@ export type FormDataObj = {
 
 export type Payload = FormData | string | FormDataObj;
 
-interface fetchOptions {
-  payload?: Payload;
+interface fetchOptions<T> {
+  payload?: Payload | T;
 }
 
-export const _fetch = async (path: string, options?: fetchOptions) => {
+export const _fetch = async <T>(path: string, options?: fetchOptions<T>) => {
   const headers: Headers = {
     "X-Requested-With": "XMLHttpRequest",
   };
@@ -28,7 +30,7 @@ export const _fetch = async (path: string, options?: fetchOptions) => {
     method: "POST",
     credentials: "include",
     headers: headers,
-    body: payload,
+    body: payload as BodyInit,
   });
 
   if (response.status === 200) {
@@ -41,4 +43,12 @@ export const _fetch = async (path: string, options?: fetchOptions) => {
   }
 
   return response.json();
+};
+
+export const redirectHome = (message: string) => {
+  alert(message);
+  Navigate({
+    to: "/",
+    replace: true,
+  });
 };

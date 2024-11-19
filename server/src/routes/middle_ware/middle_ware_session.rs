@@ -11,11 +11,6 @@ use crate::{
     database::helpers_users::find_user_by_username, model::const_value, utils::app_error::AppError,
 };
 
-/**
- * todo session 까지 완료
- * 이제 users 에서 가져와야 함.
- */
-
 pub async fn middle_ware_session(
     Extension(db): Extension<sea_orm::DatabaseConnection>,
     session: Session,
@@ -41,7 +36,6 @@ pub async fn middle_ware_session(
 
     match find_user_by_username(&db, &username.unwrap()).await {
         Ok(user) => {
-            dbg!("session user {}", &user);
             request.extensions_mut().insert(user);
         }
         Err(err) => return Err(err.into_response()),

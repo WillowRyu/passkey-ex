@@ -11,7 +11,7 @@ pub struct ResponseData {
 }
 
 pub async fn handle_logout(session: Session) -> Result<Json<ResponseData>, AppError> {
-    match session.delete().await {
+    match session.flush().await {
         Ok(_) => Ok(Json(ResponseData {
             status: StatusCode::OK.to_string(),
         })),

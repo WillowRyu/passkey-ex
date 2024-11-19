@@ -17,11 +17,7 @@ pub async fn store_username_in_session(
     }
 
     match session.insert(const_value::USERNAME_KEY, username).await {
-        Ok(_) => {
-            dbg!("username stored in session");
-            dbg!(&session);
-            Ok(())
-        }
+        Ok(_) => Ok(()),
         Err(_) => Err(AppError::new(
             "Failed to store username in session".to_owned(),
             StatusCode::INTERNAL_SERVER_ERROR,
