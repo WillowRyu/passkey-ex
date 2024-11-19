@@ -19,7 +19,6 @@ pub async fn handle_remove_key(
     Extension(db): Extension<DatabaseConnection>,
     query: Query<RemoveKeyRequest>,
 ) -> Result<Json<ResponseData>, AppError> {
-    dbg!(&query.cred_id);
     credentials::Entity::delete_by_id(&query.cred_id)
         .exec(&db)
         .await?;

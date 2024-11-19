@@ -1,12 +1,30 @@
 import { Button, Field, Input, Text } from "@fluentui/react-components";
-import { useEffect } from "react";
-import { useNavigate } from "@remix-run/react";
+import { useEffect, useState } from "react";
 import { auth_api } from "~/shared/api";
 import { _fetch, FormDataObj } from "~/shared/util/fetch";
-import { base64url } from "~/shared/util/base64_url";
+import { useCheckWebAuthAvailable } from "~/hooks/use-check-web-auth-available";
 
 export default function Index() {
-  const navigate = useNavigate();
+  const { checkWebAuthAvailable } = useCheckWebAuthAvailable();
+  const [username, setUsername] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const checkWebAuth = async () => {
+    const { username } = await checkWebAuthAvailable();
+    if (username) {
+      setLoading(true);
+      setUsername(username);
+
+      setTimeout(() => {
+        setLoading(false);
+        location.href = "http://localhost:5173/home";
+      }, 2000);
+    }
+  };
+
+  useEffect(() => {
+    checkWebAuth();
+  }, []);
 
   useEffect(() => {
     const form = document.querySelector("form");
@@ -24,79 +42,15 @@ export default function Index() {
         })
           .then((res) => {
             if (res?.data?.id) {
-              return navigate("/reauth");
+              location.href = "http://localhost:5173/reauth";
+              return;
             }
-
             alert(res?.message);
           })
           .catch(console.log);
       }
     });
-  }, [navigate]);
-
-  const authenticate = async () => {
-    const res = await _fetch(auth_api.signinRequest);
-    const { data: options } = res;
-
-    options.challenge = base64url.decode(options.challenge);
-    options.allowCredentials = [];
-
-    const cred = await navigator.credentials.get({
-      publicKey: options,
-      mediation: "conditional",
-    });
-
-    const credential: {
-      id?: string;
-      rawId?: string;
-      type?: string;
-    } = {};
-
-    if (cred) {
-      credential.id = cred.id;
-      credential.rawId = cred.id; // Pass a Base64URL encoded ID string.
-      credential.type = cred.type;
-
-      const clientDataJSON = base64url.encode(cred?.response.clientDataJSON);
-      const authenticatorData = base64url.encode(
-        cred?.response.authenticatorData
-      );
-      const signature = base64url.encode(cred?.response.signature);
-      const userHandle = base64url.encode(cred?.response.userHandle);
-
-      credential.response = {
-        clientDataJSON,
-        authenticatorData,
-        signature,
-        userHandle,
-      };
-
-      return await _fetch(auth_api.signinResponse, {
-        payload: credential,
-      });
-    }
-  };
-
-  const webauthnAvailable = async () => {
-    if (
-      window.PublicKeyCredential &&
-      !!PublicKeyCredential.isConditionalMediationAvailable
-    ) {
-      try {
-        const cma = await PublicKeyCredential.isConditionalMediationAvailable();
-        if (cma) {
-          const user = await authenticate();
-          if (user) {
-            console.log(user);
-          }
-        }
-      } catch (e) {
-        console.log(e);
-      }
-    }
-  };
-
-  useEffect(() => {}, []);
+  }, []);
 
   return (
     <div className="flex flex-col h-full items-center">
@@ -108,19 +62,13 @@ export default function Index() {
         <Field label="Username">
           <Input
             type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             autoComplete="username webauthn"
             name="username"
             autoFocus
           />
         </Field>
-
-        <input
-          type="password"
-          style={{ visibility: "hidden" }}
-          name="password"
-          autoComplete="current-password"
-          autoFocus
-        />
 
         <Text
           style={{
@@ -132,20 +80,16 @@ export default function Index() {
 
         <div />
         <div className="px-5 flex items-center justify-center">
-          <Button appearance="primary" type="submit" size="medium">
+          <Button
+            appearance="primary"
+            type="submit"
+            size="medium"
+            disabled={loading}
+          >
             NEXT
           </Button>
         </div>
       </form>
-
-      <Button
-        appearance="primary"
-        type="button"
-        size="medium"
-        onClick={webauthnAvailable}
-      >
-        Authenen
-      </Button>
     </div>
   );
 }

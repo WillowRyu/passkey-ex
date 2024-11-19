@@ -95,9 +95,6 @@ pub async fn handle_register_response(
         ));
     }
 
-    dbg!(&json_resp);
-
-    // let base64_credential_id = base64_url_encode(json_resp.registration_info.credential_id);
     let base64_credntial_public_key =
         base64_url_encode(&json_resp.registration_info.credential_public_key);
     let user_agent = user_agent_handler(&headers).await;

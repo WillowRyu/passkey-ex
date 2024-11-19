@@ -39,8 +39,6 @@ pub async fn handle_signin_response(
     let expected_rp_id = "localhost";
 
     let cred = find_credentials_by_id(&db, payload["id"].as_str().unwrap()).await?;
-
-    dbg!(&cred);
     let user = find_user_by_id(&db, &cred.user_id.unwrap()).await?;
 
     let authenticator: Authenticator = Authenticator {
@@ -65,6 +63,9 @@ pub async fn handle_signin_response(
 
     session.remove::<String>(const_value::CHALLENGE_KEY).await?;
     session.insert(const_value::SIGNED_IN_KEY, "yes").await?;
+    session
+        .insert(const_value::USERNAME_KEY, &user.username)
+        .await?;
 
     Ok(Json(ResponseData { data: user }))
 }
