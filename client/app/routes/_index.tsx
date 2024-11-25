@@ -1,8 +1,10 @@
-import { Button, Field, Input, Text } from "@fluentui/react-components";
+import { Button, Input } from "@fluentui/react-components";
 import { useEffect, useState } from "react";
 import { auth_api } from "~/shared/api";
 import { _fetch, FormDataObj } from "~/shared/util/fetch";
 import { useCheckWebAuthAvailable } from "~/hooks/use-check-web-auth-available";
+import "../styles/fade-in-text.css";
+import { BottomTextUi } from "~/shared/components/bottom-text-ui.component";
 
 export default function Index() {
   const { checkWebAuthAvailable } = useCheckWebAuthAvailable();
@@ -52,44 +54,44 @@ export default function Index() {
     });
   }, []);
 
+  const text = `Please enter any name.\nIf the name exists, you will be logged in with it.\nIf it does not exist, a new account will be created.`;
+
   return (
-    <div className="flex flex-col h-full items-center">
+    <div className="flex flex-col h-full items-center bg-transparent justify-between">
+      <div className="h-[10%]" />
       <form
-        className="w-[300px] bg-gray-100 shadow-md rounded-md px-3 py-5 flex flex-col gap-3"
+        className="w-[300px] shadow-lg rounded-md px-3 py-5 flex flex-col gap-3 bg-blue-900/80"
         method="POST"
         action={auth_api.username}
       >
-        <Field label="Username">
-          <Input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            autoComplete="username webauthn"
-            name="username"
-            autoFocus
-          />
-        </Field>
-
-        <Text
-          style={{
-            color: "gray",
-          }}
-        >
-          Any username can be accepted.
-        </Text>
+        <Input
+          type="text"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          autoComplete="username webauthn"
+          name="username"
+          autoFocus
+        />
 
         <div />
         <div className="px-5 flex items-center justify-center">
           <Button
-            appearance="primary"
             type="submit"
             size="medium"
+            className="hover:shadow-xl"
             disabled={loading}
+            style={{
+              borderColor: "#1e40af",
+              background: "#1e40af",
+              color: "white",
+            }}
           >
             NEXT
           </Button>
         </div>
       </form>
+
+      <BottomTextUi text={text} />
     </div>
   );
 }

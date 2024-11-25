@@ -1,0 +1,36 @@
+.fade-in-text {
+  display: inline-block;
+  white-space: pre-wrap; /* 줄바꿈 유지 */
+}
+
+.fade-in-line {
+  opacity: 0;
+  display: block; /* 각 줄을 블록으로 처리 */
+  animation: fadeInLine 0.5s ease forwards;
+}
+
+.fade-in-letter {
+  opacity: 0;
+  display: inline-block;
+  animation: fadeIn 0.5s ease forwards;
+}
+
+@keyframes fadeInLine {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px); /* 약간 위에서 내려오는 효과 */
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

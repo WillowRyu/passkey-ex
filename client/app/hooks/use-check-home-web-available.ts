@@ -7,8 +7,6 @@ export const useCheckHomeWebAvailable = () => {
           PublicKeyCredential.isConditionalMediationAvailable(),
         ]);
 
-        console.log(result, "result");
-
         if (result.every((r) => r === true)) {
           return true;
         }
