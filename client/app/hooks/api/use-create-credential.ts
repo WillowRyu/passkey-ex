@@ -21,13 +21,9 @@ export const useCreateCredential = () => {
       requireResidentKey: true,
     };
 
-    console.log("create");
-
     const cred = (await navigator.credentials.create({
       publicKey: options,
     })) as any;
-
-    console.log(cred, "cred");
 
     const credential: any = {};
     credential.id = cred?.id;

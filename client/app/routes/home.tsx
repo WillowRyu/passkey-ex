@@ -115,7 +115,7 @@ export default function Home() {
         <div className="flex w-full justify-between items-center">
           <div className="text-lg flex flex-col gap-2">
             DisplayName
-            <span className="text-fuchsia-400">{userInfo.displayname}</span>
+            <span className="text-blue-400">{userInfo.displayname}</span>
           </div>
           <Button type="button" onClick={updateDisplayName}>
             change
@@ -123,7 +123,7 @@ export default function Home() {
         </div>
 
         <div className="flex w-full justify-between items-center pb-6">
-          <div className="text-2xl flex flex-col gap-4 w-full">
+          <div className="text-lg flex flex-col gap-4 w-full">
             Registered Keys
             {cred?.map((cred) => {
               return (
@@ -131,7 +131,7 @@ export default function Home() {
                   key={cred.id}
                   className="flex justify-between w-full text-xl"
                 >
-                  <div className="text-red-500">{cred.name}</div>
+                  <div>{cred.name}</div>
 
                   <div className="flex gap-2">
                     <Button onClick={() => onDelete(cred.id)}>Delete</Button>
@@ -148,25 +148,12 @@ export default function Home() {
         </div>
 
         {availablePassKey && (
-          <Button
-            type="button"
-            size="large"
-            onClick={registerCredential}
-            appearance="primary"
-          >
+          <Button type="button" size="large" onClick={registerCredential}>
             CREATE A PASSKEY
           </Button>
         )}
 
-        <Button
-          type="button"
-          size="large"
-          onClick={onLogout}
-          style={{
-            backgroundColor: "#ef4444",
-            color: "white",
-          }}
-        >
+        <Button type="button" size="large" onClick={onLogout}>
           LOGOUT
         </Button>
       </div>

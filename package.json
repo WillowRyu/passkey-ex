@@ -3,7 +3,8 @@
   "scripts": {
     "db:up": "docker-compose up -d",
     "db:down": "docker-compose down",
-    "server:dev": "cd server && cargo watch -x run",
-    "dev": "cd client && pnpm run dev"
+    "server:rust": "cd server && cargo watch -x run",
+    "server:node": "cd node_server && pnpm serve",
+    "client:dev": "cd client && pnpm run dev"
   }
 }
