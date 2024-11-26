@@ -1,0 +1,90 @@
+/* 배경색과 글꼴 초기화 */
+.custom_input {
+  margin: 0;
+  font-family: "Arial", sans-serif;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 컨테이너 스타일 */
+.custom_input .signature-container {
+  text-align: center;
+  position: relative;
+  width: 400px;
+}
+
+/* 상단 라벨 */
+.custom_input .signature-label {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  font-size: 18px;
+  position: relative;
+}
+
+/* 라벨에 있는 텍스트 스타일 */
+.custom_input .signature-text {
+  font-size: 20px;
+  color: #8ecbff;
+  text-shadow: 0 0 8px #8ecbff, 0 0 12px #8ecbff;
+}
+
+/* 라인 효과 */
+.custom_input .line-effect {
+  flex: 1;
+  height: 2px;
+  background: linear-gradient(to right, transparent, #8ecbff, transparent);
+  animation: glowing-line 2s infinite;
+}
+
+/* 애니메이션 */
+@keyframes glowing-line {
+  0% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.5;
+  }
+}
+
+/* 서명 안내 텍스트 */
+.custom_input .instruction {
+  margin: 10px 0 20px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+  text-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
+}
+
+/* 입력창 스타일 */
+.custom_input .signature-input {
+  width: 100%;
+  padding: 10px;
+  font-size: 18px;
+  color: white;
+  background: transparent;
+  border: 1px solid #8ecbff;
+  border-radius: 4px;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.custom_input .signature-input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+  text-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
+}
+
+.custom_input .signature-input:focus {
+  border-color: #ffffff;
+  box-shadow: 0 0 8px #8ecbff;
+}
+
+.custom_input .signature-label.active .signature-text {
+  text-shadow: 0 0 12px #ffffff, 0 0 20px #8ecbff;
+}
