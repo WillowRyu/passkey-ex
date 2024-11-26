@@ -8,3 +8,10 @@ body {
   height: 100%;
   width: 100%;
 }
+
+.background-style {
+  margin: 0;
+  background: linear-gradient(135deg, #001f4d, #03396c, #005792, #1c8cc7);
+  background-size: 300% 300%;
+  font-family: "Arial", sans-serif;
+}

@@ -1,0 +1,52 @@
+.custom-form {
+  background: linear-gradient(to bottom, #1b2942, #25335b);
+  border-radius: 10px;
+  padding: 20px;
+  width: 300px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  text-align: center;
+}
+
+.custom-form-button {
+  margin-top: 20px;
+  background: #324b6e;
+  color: white;
+  font-size: 14px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease-in-out;
+}
+
+.custom-form-button:hover {
+  background: #3a6b9e;
+  box-shadow: 0 0 8px #8ecbff;
+}
+
+.loadingSpinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 3px solid transparent;
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-left: 8px;
+}
+
+.custom-form-button:disabled {
+  background: #123b6e;
+  cursor: not-allowed;
+  box-shadow: none;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
