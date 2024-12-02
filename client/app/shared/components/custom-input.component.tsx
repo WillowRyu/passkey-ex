@@ -3,7 +3,7 @@ import "../../styles/custom-input.css";
 
 interface CustomInputProps extends InputHTMLAttributes<HTMLInputElement> {
   title: string;
-  subText: string;
+  subText?: string;
 }
 
 export function CustomInput({ title, subText, ...props }: CustomInputProps) {
