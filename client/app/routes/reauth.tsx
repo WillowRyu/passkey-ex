@@ -1,7 +1,10 @@
-import { Button, Field, Input, Text } from "@fluentui/react-components";
 import { useEffect } from "react";
 import { auth_api } from "~/shared/api";
+import "../styles/fade-in-text.css";
+import "../styles/form-style.css";
+import { CustomInput } from "~/shared/components/custom-input.component";
 import { _fetch, FormDataObj } from "~/shared/util/fetch";
+import { BottomTextUi } from "~/shared/components/bottom-text-ui.component";
 
 export default function Reauth() {
   useEffect(() => {
@@ -31,37 +34,35 @@ export default function Reauth() {
     });
   }, []);
 
+  const text = `Password will be ignored in this demo.`;
+
   return (
-    <div className="flex flex-col h-full items-center">
+    <div className="flex flex-col h-full items-center justify-between w-full background-style">
+      <div />
       <form
-        className="w-[300px] bg-gray-100 shadow-md rounded-md px-3 py-5 flex flex-col gap-3"
+        className="w-[300px] shadow-lg rounded-md px-3 py-5 flex flex-col custom-form"
         method="POST"
         action={auth_api.password}
       >
+        <CustomInput
+          autoFocus
+          autoComplete="current-password"
+          name="password"
+          placeholder="Input Password"
+          type="password"
+          title="Your Password"
+          subText="Please enter your password"
+        />
+
         <input hidden type="text" autoComplete="username" />
-        <Field label="Password">
-          <Input
-            type="password"
-            autoComplete="current-password"
-            name="password"
-          />
-        </Field>
 
-        <div />
         <div className="px-5 flex items-center justify-center">
-          <Button appearance="primary" type="submit" size="medium">
-            SIGN-IN
-          </Button>
+          <button className="custom-form-button min-w-[100px] flex gap-2 items-center justify-center">
+            <span>SIGN-IN</span>
+          </button>
         </div>
-
-        <Text
-          style={{
-            color: "gray",
-          }}
-        >
-          password will be ignored in this demo.
-        </Text>
       </form>
+      <BottomTextUi text={text} />
     </div>
   );
 }
