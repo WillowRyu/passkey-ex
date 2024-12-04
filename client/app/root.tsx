@@ -6,11 +6,6 @@ import {
   ScrollRestoration,
 } from "@remix-run/react";
 import "./tailwind.css";
-import {
-  FluentProvider,
-  IdPrefixProvider,
-  webLightTheme,
-} from "@fluentui/react-components";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -39,11 +34,5 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  return (
-    <IdPrefixProvider value="APPID-">
-      <FluentProvider theme={webLightTheme} style={{ height: "100%" }}>
-        <Outlet />
-      </FluentProvider>
-    </IdPrefixProvider>
-  );
+  return <Outlet />;
 }
