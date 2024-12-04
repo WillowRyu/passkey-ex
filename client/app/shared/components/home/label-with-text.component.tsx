@@ -20,7 +20,11 @@ export function LabelWithText({ label, text, onClick }: LabelWithTextProps) {
           }`}
           onClick={onClick}
         >
-          <div className="text-2xl font-semibold whitespace-nowrap overflow-hidden text-ellipsis">
+          <div
+            className={`text-2xl font-semibold whitespace-nowrap overflow-hidden text-ellipsis px-2 rounded-md ${
+              onClick ? "transition-all duration-200 hover:bg-[#1f7cff]" : ""
+            }`}
+          >
             {text}
           </div>
         </div>
