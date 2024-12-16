@@ -17,7 +17,7 @@ To run this project locally, follow the steps below.
 Use Docker to run the local database.
 
 ```bash
-pnpm db up
+pnpm db:up
 ```
 
 #### 2. Run the Servers
